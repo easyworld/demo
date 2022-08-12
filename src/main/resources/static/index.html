@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <!-- 必须的 meta 标签 -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+          integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+
+    <!-- 可选的 Bootstrap 主题文件（一般不用引入） -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css"
+          integrity="sha384-6pzBo3FDv/PJ8r2KRkGHifhEocL+1X2rVCTTkUfGk7/0pbek5mMa1upzvWbrUbOZ" crossorigin="anonymous">
+    <style>
+        .extra {
+            position: absolute;
+            right: -5px;
+            top: 0;
+            border: 1px dashed brown;
+            width: 25px;
+            background: white;
+        }
+    </style>
+    <title>Hello, world!</title>
+
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"
+            integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd"
+            crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function () {
+            let originSessionStorage = sessionStorage.getItem("item");
+            if (originSessionStorage != null) {
+                $("#export").text("导出(" + originSessionStorage.split(',').length + ")");
+            }
+        });
+
+        function search(page, count) {
+            $.post("search", {q: $("#q").val(), page: page, count: count}, function (data) {
+                $("#result").empty();
+                let msg = data.data;
+                for (let msgKey in msg) {
+                    let img = $("<img>");
+                    img.prop("src", msg[msgKey].url);
+                    img.prop("class", "img-rounded img-responsive");
+                    let li = $("<li class='text-center' style='position: relative'>");
+                    li.append(img);
+                    let lable = $("<label style='display: block;'>");
+                    lable.text(msg[msgKey].schi);
+                    li.append(lable);
+                    if (msg[msgKey].extra != null) {
+                        let extra = $("<div class='extra'>");
+                        extra.text(msg[msgKey].extra == 'DIY' ? msg[msgKey].extra : "x" + msg[msgKey].extra);
+                        li.append(extra);
+                    }
+                    let hex = $("<input name='hex' type='hidden'>");
+                    hex.val(msg[msgKey].hex == null ? 0 : msg[msgKey].hex);
+                    li.append(hex);
+                    let id = $("<input name='id' type='hidden'>");
+                    id.val("0x" + msg[msgKey].id);
+                    li.append(id);
+                    li.append("<button class=\"btn\" onclick=\"add(this)\">添加</button>");
+                    $("#result").append(li);
+                }
+            })
+        }
+
+        function add(dom) {
+            $dom = $(dom);
+            let id = $dom.siblings("input[name='id']").eq(0).val();
+            let hex = $dom.siblings("input[name='hex']").eq(0).val();
+            let itemString = id + "," + hex + ";";
+            let originSessionStorage = sessionStorage.getItem("item");
+            if (originSessionStorage == null) originSessionStorage = "";
+            $("#export").text("导出(" + originSessionStorage.split(',').length + ")");
+            sessionStorage.setItem("item", originSessionStorage + itemString);
+            console.log(itemString);
+        }
+
+        function exportCode() {
+            if (sessionStorage.getItem("item") == null) {
+                $("#order-title").text("错误")
+                $("#order-text").text("请选购");
+                $('#myModal').modal('show');
+                return;
+            }
+            $.post("genCode", {param: sessionStorage.getItem("item")}, function (msg) {
+                $("#order-title").text("你的订单号为")
+                $("#order-text").text(msg);
+                $('#myModal').modal('show');
+            });
+        }
+
+        function clearCode() {
+            sessionStorage.removeItem("item");
+            $("#export").text("导出");
+        }
+    </script>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="panel panel-default">
+            <div class="panel-heading">acnh选品系统</div>
+            <div class="panel-body">
+                <input id="q" class="input-medium search-query" type="text"/>
+                <button id="search" class="btn btn-primary" onclick="search()">查找</button>
+                <button id="export" class="btn btn-default" onclick="exportCode()">导出</button>
+                <button id="clear" class="btn btn-default" onclick="clearCode()">清空</button>
+                <a class="btn btn-info" href="itemDownload.html">跳转订单数据获取页面</a>
+                <ul class="list-inline" id="result">
+                </ul>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <h4 id="order-title" class="modal-title"></h4>
+            </div>
+            <div class="modal-body">
+                <p id="order-text"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+</body>
+</html>

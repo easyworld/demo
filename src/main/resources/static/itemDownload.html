@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <!-- 必须的 meta 标签 -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+          integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+
+    <!-- 可选的 Bootstrap 主题文件（一般不用引入） -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css"
+          integrity="sha384-6pzBo3FDv/PJ8r2KRkGHifhEocL+1X2rVCTTkUfGk7/0pbek5mMa1upzvWbrUbOZ" crossorigin="anonymous">
+    <style>
+        .extra {
+            position: absolute;
+            right: -5px;
+            top: 0;
+            border: 1px dashed brown;
+            width: 25px;
+            background: white;
+        }
+    </style>
+    <title>Hello, world!</title>
+
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"
+            integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd"
+            crossorigin="anonymous"></script>
+    <script>
+
+        function search() {
+            $.post("getParam", {code: $("#q").val()}, function (data) {
+                if (data == null || data == '') {
+                    $("#order-title").text("错误")
+                    $("#order-text").text("未找到订单");
+                    $('#myModal').modal('show');
+                    return;
+                } else {
+                    $("#param1").val(data);
+                    document.getElementById("form1").submit();
+                }
+            })
+        }
+
+    </script>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="panel panel-default">
+            <div class="panel-heading">订单数据获取</div>
+            <div class="panel-body">
+                <input id="q" class="input-medium search-query" type="text"/>
+                <button id="search" class="btn btn-primary" onclick="search()">查找并下载nhi</button>
+                <a class="btn btn-info" href="index.html">跳转选品页面</a>
+            </div>
+        </div>
+    </div>
+</div>
+<form id="form1" method="post" action="./download" style="display: none">
+    <input id="param1" name="param"/>
+</form>
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <h4 id="order-title" class="modal-title"></h4>
+            </div>
+            <div class="modal-body">
+                <p id="order-text"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+</body>
+</html>
