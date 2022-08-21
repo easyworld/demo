@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -151,7 +152,7 @@ public class Main6 {
 
     private static List<String> readAll(String path) throws Exception {
         List<String> result = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(path, StandardCharsets.UTF_8))) {
             for (String str = br.readLine(); str != null; str = br.readLine()) {
                 result.add(str);
             }

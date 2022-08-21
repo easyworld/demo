@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -42,7 +43,7 @@ public class Datasource implements InitializingBean {
 
     private static List<String> readAll(String path) throws Exception {
         List<String> result = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(path, StandardCharsets.UTF_8))) {
             for (String str = br.readLine(); str != null; str = br.readLine()) {
                 result.add(str);
             }
