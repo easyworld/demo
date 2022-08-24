@@ -83,13 +83,18 @@ public class TestController {
         ByteArrayBuilder byteArrayBuilder = new ByteArrayBuilder();
         Arrays.stream(param.split(";"))
                 .map(str -> str.split(","))
-                .filter(s -> s.length == 2 && s[0].startsWith("0x") && s[1].matches("\\d+")).collect(Collectors.toList())
+                .filter(s -> s.length == 3 && s[0].startsWith("0x") && s[1].matches("\\d+")).collect(Collectors.toList())
                 .forEach(s -> {
                     int id = Integer.parseUnsignedInt(s[0].replaceAll("0x", ""), 16);
+                    short extra = 0;
+                    if (s[2].matches("\\d+")) {
+                        extra = Short.parseShort(s[2]);
+                    }
                     int hex = Integer.parseUnsignedInt(s[1]);
+
                     ByteBuffer byteBuffer = ByteBuffer.allocate(Long.BYTES);
                     byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
-                    byteArrayBuilder.write(byteBuffer.putInt(id).putInt(hex).array());
+                    byteArrayBuilder.write(byteBuffer.putInt(id).putShort((short)hex).putShort(extra).array());
                 });
         // padding
         int d = (byteArrayBuilder.size() / 8) % 40;

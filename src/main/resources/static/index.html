@@ -22,7 +22,7 @@
             background: white;
         }
     </style>
-    <title>Hello, world!</title>
+    <title>acnh选品系统</title>
 
     <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
@@ -33,7 +33,7 @@
         $(document).ready(function () {
             let originSessionStorage = sessionStorage.getItem("item");
             if (originSessionStorage != null) {
-                $("#export").text("导出(" + originSessionStorage.split(',').length + ")");
+                $("#export").text("导出(" + (originSessionStorage.split(';').length-1) + ")");
             }
         });
 
@@ -52,12 +52,23 @@
                     li.append(lable);
                     if (msg[msgKey].extra != null) {
                         let extra = $("<div class='extra'>");
-                        extra.text(msg[msgKey].extra == 'DIY' ? msg[msgKey].extra : "x" + msg[msgKey].extra);
+                        extra.text(msg[msgKey].extra === 'DIY' ? msg[msgKey].extra : "x" + msg[msgKey].extra);
                         li.append(extra);
                     }
+
+                    let extra = $("<input name='extra' type='hidden'>");
                     let hex = $("<input name='hex' type='hidden'>");
-                    hex.val(msg[msgKey].hex == null ? 0 : msg[msgKey].hex);
+                    if (/_Remake_/.test(msg[msgKey].url) && msg[msgKey].extra != null
+                        && msg[msgKey].extra !== 'DIY' && msg[msgKey].extra > 1) {
+                        hex.val(msg[msgKey].extra - 1);
+                        extra.val(msg[msgKey].hex == null ? 0 : msg[msgKey].hex)
+                    } else {
+                        hex.val(msg[msgKey].hex == null ? 0 : msg[msgKey].hex);
+                        extra.val(0);
+                    }
+                    li.append(extra);
                     li.append(hex);
+
                     let id = $("<input name='id' type='hidden'>");
                     id.val("0x" + msg[msgKey].id);
                     li.append(id);
@@ -71,11 +82,16 @@
             $dom = $(dom);
             let id = $dom.siblings("input[name='id']").eq(0).val();
             let hex = $dom.siblings("input[name='hex']").eq(0).val();
-            let itemString = id + "," + hex + ";";
+            let extra = $dom.siblings("input[name='extra']").eq(0).val();
+            let itemString = id + "," + hex + "," + extra + ";";
             let originSessionStorage = sessionStorage.getItem("item");
-            if (originSessionStorage == null) originSessionStorage = "";
-            $("#export").text("导出(" + originSessionStorage.split(',').length + ")");
+            if (originSessionStorage == null) {
+                originSessionStorage = "";
+            }
             sessionStorage.setItem("item", originSessionStorage + itemString);
+
+            let num = sessionStorage.getItem("item").split(';').length - 1;
+            $("#export").text("导出(" + num + ")");
             console.log(itemString);
         }
 

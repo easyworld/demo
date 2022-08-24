@@ -9,7 +9,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Main6 {
-    static String basePath = "https://raw.githubusercontent.com/MyShiLingStar/ACNHPokerCore/main/ACNHPokerCore";
+    static String basePath = "/Users/xmly/Downloads/ACNHPokerCore-main/ACNHPokerCore";
     static String _remake_ = "_Remake_";
     static String urlPrefix = "https://acnhcdn.com/latest/FtrIcon/";
 
@@ -61,7 +61,8 @@ public class Main6 {
                         Map<String, String> tempMap = new LinkedHashMap<>(map);
                         tempMap.put(resultColumn[1], String.valueOf(i * 0x20 + j));
                         tempMap.put(resultColumn[2], iName + _remake_ + j + "_" + i + ".png");
-                        map.put(resultColumn[3], "");
+                        int num = kindNumMap.getOrDefault(kindMap.get(id), 0);
+                        tempMap.put(resultColumn[3], num > 0 ? String.valueOf(num) : "");
                         result.add(tempMap);
                     }
                 }
@@ -107,7 +108,7 @@ public class Main6 {
             map.put(resultColumn[3], "DIY");
             result.add(map);
         }
-        /* check if you are not sure
+        // check
         for (Map<String, String> map : result) {
             String fileName = map.get(resultColumn[2]);
             File f = new File(basePath + "/img/" + fileName);
@@ -115,10 +116,11 @@ public class Main6 {
                 System.out.println("ERROR " + kindMap.get(map.get("id")) + " " + map);
                 System.exit(1);
             }
-        }*/
+        }
 
         // show result
         try (PrintWriter pw = new PrintWriter("result.txt")) {
+            pw.println("schi\tid\thex\turl\textra");
             for (Map<String, String> map : result) {
                 String s = idSchiMap.get(map.get(resultColumn[0]));
                 if (s == null) {
@@ -142,7 +144,7 @@ public class Main6 {
     private static Map<String, String> getVarNumMap(Set<String> iNames) {
         File f = new File(basePath + "/img");
         Map<String, String> varNumMap = new LinkedHashMap<>();
-        Arrays.stream(Objects.requireNonNull(f.list((dir, name) -> name.contains(_remake_)))).forEach(str -> {
+        Arrays.stream(Objects.requireNonNull(f.list((dir, name) -> name.contains(_remake_)))).sorted().forEach(str -> {
             if (iNames.contains(str.split(_remake_)[0])) {
                 varNumMap.put(str.split(_remake_)[0], str.split(_remake_)[1].split("\\.")[0]);
             }
