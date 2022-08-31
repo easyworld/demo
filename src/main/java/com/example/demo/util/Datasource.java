@@ -27,7 +27,7 @@ public class Datasource implements InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
         data = new ArrayList<>();
-        List<String> pokerCsvString = readAll("result.txt");
+        List<String> pokerCsvString = FileUtil.readAll("result.txt");
         String[] columns = pokerCsvString.get(0).split("\t");
         for (int i = 1; i < pokerCsvString.size(); i++) {
             Map<String, String> row = new LinkedHashMap<>();
@@ -39,15 +39,5 @@ public class Datasource implements InitializingBean {
             }
             data.add(row);
         }
-    }
-
-    private static List<String> readAll(String path) throws Exception {
-        List<String> result = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(path, StandardCharsets.UTF_8))) {
-            for (String str = br.readLine(); str != null; str = br.readLine()) {
-                result.add(str);
-            }
-        }
-        return result;
     }
 }

@@ -1,6 +1,7 @@
 package com.example.demo;
 
 import com.example.demo.util.Datasource;
+import com.example.demo.util.ItemCache;
 import com.example.demo.util.Md5Util;
 import com.example.demo.util.Page;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
@@ -20,6 +21,7 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -34,11 +36,8 @@ public class TestController {
     @Autowired
     private Datasource datasource;
 
-    Cache<String, String> itemCache = CacheBuilder.newBuilder()
-            .maximumSize(10000)
-            .expireAfterWrite(3, TimeUnit.DAYS)
-            .build();
-
+    @Autowired
+    private ItemCache itemCache;
 
     @GetMapping("/test")
     public String test() {
@@ -71,7 +70,7 @@ public class TestController {
 
     @PostMapping(path = "/getParam")
     public String downloadByCode(String code) {
-        return itemCache.getIfPresent(code);
+        return itemCache.get(code);
     }
 
     @PostMapping(path = "/download")
@@ -130,7 +129,7 @@ public class TestController {
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
-        headers.add("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileName, "UTF-8"));
+        headers.add("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileName, StandardCharsets.UTF_8));
         headers.add("Pragma", "no-cache");
         headers.add("Expires", "0");
         InputStreamResource resource = new InputStreamResource(new ByteArrayInputStream(bytes));
