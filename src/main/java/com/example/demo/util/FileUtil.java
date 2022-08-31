@@ -27,7 +27,7 @@ public class FileUtil {
 
     public static void appendSave(String path, String key, String value) {
         try (PrintWriter pw = new PrintWriter(new FileWriter(path, true))) {
-            pw.println(key + "$" + value);
+            pw.println(key + "$" + value + "$" + System.currentTimeMillis());
         } catch (Exception ex) {
             logger.error("Write error", ex);
         }
