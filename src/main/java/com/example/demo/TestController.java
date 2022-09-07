@@ -5,15 +5,15 @@ import com.example.demo.util.ItemCache;
 import com.example.demo.util.Md5Util;
 import com.example.demo.util.Page;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
+import org.thymeleaf.util.StringUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -25,7 +25,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -47,6 +46,9 @@ public class TestController {
     @PostMapping("/search")
     @ResponseBody
     public Object search(@RequestParam(defaultValue = "") String q, @RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "50") Integer count) {
+        Assert.isTrue(!StringUtils.isEmptyOrWhitespace(q), "q should not be blank");
+        Assert.isTrue(page > 0, "page should greater than 0");
+        Assert.isTrue(count < 100 && count > 0, "count should in range (0,100)");
         List<Map<String, String>> data = datasource.getData();
         long totalCount = data.stream().filter(m -> m.get("schi").contains(q)).count();
         List<Map<String, String>> result = data.stream().filter(m -> m.get("schi").contains(q)).skip((long) (page - 1) * count).limit(count).collect(Collectors.toList());
@@ -93,7 +95,7 @@ public class TestController {
 
                     ByteBuffer byteBuffer = ByteBuffer.allocate(Long.BYTES);
                     byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
-                    byteArrayBuilder.write(byteBuffer.putInt(id).putShort((short)hex).putShort(extra).array());
+                    byteArrayBuilder.write(byteBuffer.putInt(id).putShort((short) hex).putShort(extra).array());
                 });
         // padding
         int d = (byteArrayBuilder.size() / 8) % 40;
