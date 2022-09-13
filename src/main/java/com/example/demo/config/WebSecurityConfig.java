@@ -24,13 +24,13 @@ public class WebSecurityConfig {
         http
                 .authorizeHttpRequests((requests) -> requests
                         .antMatchers("/register").permitAll()
-                        .antMatchers("/*").hasAnyRole("vip", "admin")
+                        .antMatchers("/**").hasAnyRole("vip", "admin")
                         .anyRequest().authenticated()
                 )
                 .formLogin((form) -> form
                         .loginPage("/login")
                         .permitAll()
-                )
+                ).csrf().disable()
                 .logout(LogoutConfigurer::permitAll);
 
         return http.build();
